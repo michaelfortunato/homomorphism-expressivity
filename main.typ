@@ -728,6 +728,139 @@ Our first step is to choose our template graph $cal(T)$
 Notice that we labelled the nodes with colors corresponding to the selection
 of our template graph.
 
+Notice the 5-cycle in our node color labelling, so in line with that
+let us choose the template graph $cal(T) = C_(5)$.
+
+#let At = (
+  (0, 1, 0, 0, 1),
+  (1, 0, 1, 0, 0),
+  (0, 1, 0, 1, 0),
+  (0, 0, 1, 0, 1),
+  (1, 0, 0, 1, 0),
+)
+
+In particular, the adjacency matrix of $cal(T)$ is given by
+$
+  A_(cal(T)) = mat(delim:"[",
+  ..#At
+  ).
+$
+
+The automorphism group of $A_(cal(T))$ is
+$
+  "Aut"(A_(cal(T))) = D_(5)
+$
+The dihedral group of 5 elements,
+$D_(5)$ is the set of rotations and reflections. Visually this makes sense,
+as rotating or reflecting this sub-graph should not change it.
+
+#figure(
+  supplement: [Figure],
+  caption: [The Template Graph $cal(T)$, A Sub-Graph of $A$],
+  draw-graph-from-adj-matrix(At, node_label_fn: i => text(str(i + 1)), node_color_function: i => pastel-yellow),
+)
+
+Now that we have chosen our template graph, Autobahn starts.
+
+=== Step 3 Determine The Sub-graphs Isomorphic To $C_(5)$ <subsubsec:>
+
+- Objective: To find the sub-graph of $A$ that are isomorphic to the template
+  graph $cal(T) = C_(5)$. In other words, find all sub-graphs in our input graph
+  that contain 5-cycles.
+- How: Find all $sigma in SS_(6)$ so that
+  $
+    sigma dot.op A = A_(cal(T)).
+  $
+
+=== Step 4 Construct A Function That Is Equivariant to $"Aut"(C_(5)) = D_(5)$
+Let $f^(ell - 1)_(i)$ denote the feature vector form the previous layer ($ell - 1$)
+corresponding to the $i$th vertex. For us, we will consider the first internal layer
+and let
+$
+  f^(0)_(i) = "deg"(v_(i)) \
+  f^(0) &= (f^(0)_(1), ... , f^(0)_(6)) \
+  &= (3, 2, 2, 2, 2, 1)
+$
+
+// Now, for each 5-cycle sub-graph, define a function that is equivariant
+// to automorphisms. Such functions should compute features that are only local
+// to the sub-graph. For our case, the only 5-cycle is $v_(1),...,v_(5)$.
+// Let the altered feature vectors on the 5-cycle be
+// $
+//   f'^(0)_(i) = ("deg"(v_(i)), "is-adjacent-to-pendant")
+// $ for $i = {1, ..., 5}$
+//
+// So we have
+// $
+//   f'^(0) = ((2, 0), (2, 0), (2, 0), (2, 0), (2,0))
+// $
+//
+// #remark[
+//   To emphasize, we are only computing $f'$ on the sub-graph $C_(5)$,
+//   hence $f'^(0)_(1) = (2, 0)$, even though globally it is $(2, 1)$
+// ]
+//
+//
+Let $f'^(0)$ be the feature vector but only on the 5-cycle
+$
+  f'^(0)_(i) = ("deg"(v_(i)))
+$ for $i = {1, ..., 5}$
+
+We consruct our sub-graph neuron so that it is pseudo-equivariant $"Aut"(C_(5))$ if we
+only compute the features on the sub-graph, but in actuality is not equivariant
+to $"Aut"(C_(5))$. We can construct our sub-graph neuron to be do this by having our sub-graph neuron convolve
+over all permutations in $D_(5)$
+$
+  f'^(1) = sum_(sigma in D_(5))^() sigma dot.op w * f'^(0)
+$<eq:psuedo>
+for some learnable weight $w$.
+
+Notice that, conceptually, if we only compute $f'^(0)$ with respect to
+the 5-cycle sub-graph, then $f^(0)_(1) = "deg"(v_(1)) = 2$ and @eq:psuedo
+is indeed equivariant to $D_(5)$. On the other hand, if we compute
+$f'^(0)$ with respect to the entire graph $A$, then
+$f^(0)_(1) = "deg"(v_(1)) = 3$, and @eq:psuedo is not actually equivariant
+to $D_(5)$. This is the crucial insight. In essence, Autobahn breaks permutation
+equivariance to $D_(5)$ of global features of the graph, while maintaining
+permutation equivariance to $D_(5)$ of local features of the graph.
+
+In other words
+$
+  f'^(0) = (2,2,2,2,2) & "When on considered on the isoloated subgraph" \
+  f'^(0) = (3,2,2,2,2) & "in actuality. I.e. with respect to the entire graph."
+$
+
+== Apply Non-Linearity And Add $f^(1)_(6)$ <subsubsec:>
+Finally, we construct the output layer
+
+$
+  f'^(1) = f'^(1) + f^(1)_(6),
+$ where $f'^(1)$ is computed with
+$f'^(0) = ("deg"(v_(1)), "deg"(v_(2)), "deg"(v_(3)), "deg"(v_(4)), "deg"(v_(5)) = (3,2,2,2,2)$
+
+== Summarizing Autobahn <subsubsec:>
+
+In summary, Autobahn requires you to choose a template graph $cal(T)$
+that reflects the input graph's structures and problem domain nicely.
+For example, we could have chosen $cal(T) = P_(3)$, that is, all paths
+of length $3$ in our input graph $A$.
+- Finds the sub-graphs isomorphic to $cal(T)$ on $A$.
+- Constructs neurons that are permutation equivariant to $"Aut"(A_(cal(T)))$
+  with respect the sub-graph
+- Incorporates these terms to the neuron's activations on other vertices not in the sub-graph,
+  ensuring global equivariance with respect to the graph.
+
+In summary, by ensuring functions on sub-graphs are permutation equivariant to $D_(5)$
+*if the features the functions are acting on are computed with respect to the sub-graph*,
+Autobahn cleverly breaks permutation equivariance to $D_(5)$ by applying
+this function on $f'^(0)$ evaluated on the entire input graph.
+
+Clearly the major drawback of Autobahn is that it requires
+users
+
+
+
+
 
 
 = Exemplifying The Expressivity Gap Between Schur Nets and Autobahn <sec:Main1>
@@ -738,71 +871,6 @@ the different between Autobahn @thiedeAutobahnAutomorphismbasedGraph2021
 and Schur Nets @zhangSchurNetsExploiting2025 by going through
 particular examples.
 
-
-
-== How Autobahn And Schur Nets Handle 4 Cycle Graphs <subsec:ME1>
-
-To introduce the analysis, consider how Autobahn and Schur Nets
-operate on 4 nodes graphs whose automorphism group is $D_(4)$.
-
-Let us take consider the graph $cal(G)$ given by the adjacency matrix
-$
-  A = mat(delim:"[",
-  0, 1, 0, 1, 1;
-  1, 0, 1, 0, 0;
-  0, 1, 0, 1, 0;
-  1, 0, 1, 0, 0;
-  1, 0, 0, 0, 0;
-  )
-$ <c4>
-
-#let A = (
-  (0, 1, 0, 1),
-  (1, 0, 1, 0),
-  (0, 1, 0, 1),
-  (1, 0, 1, 0),
-)
-
-// Define the adjacency matrix for the labeled 4-cycle with pendant edge
-#let adj-matrix = (
-  (0, 1, 0, 1, 1),
-  (1, 0, 1, 0, 0),
-  (0, 1, 0, 1, 0),
-  (1, 0, 1, 0, 0),
-  (1, 0, 0, 0, 0),
-)
-
-// Draw the graph
-
-
-
-#figure(
-  // caption: [The Star Graph under $sigma = $ in $S_(7)$, which is not an automorphism],
-  caption: [The graph described by @c4],
-  supplement: [Figure],
-  draw-graph-from-adj-matrix(adj-matrix, node-radius: .3),
-)
-
-First observe that not all permutations of $SS_(5)$ on $cal(G)$
-leave $A$ unchanged under the standard group action @def:sga.
-That is to say
-$
-  SS_(5) != "Aut"(cal(G))
-$
-
-For instance, consider the permutation $sigma = (4 #h(.4em) 0)$ (expressed
-in cycle notation), that is relabelled
-$4$ and $0$, leaving the other nodes fixed.
-
-$
-  A = mat(delim:"[",
-  0, 1, 0, 1, 1;
-  1, 0, 1, 0, 0;
-  0, 1, 0, 1, 0;
-  1, 0, 1, 0, 0;
-  1, 0, 0, 0, 0;
-  ) "vs" sigma dot.op A = ...
-$
 
 
 = Acknowledgements
