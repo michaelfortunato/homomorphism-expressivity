@@ -3,6 +3,11 @@
 #import "@preview/cetz:0.3.3": canvas, draw, tree
 #import "@preview/subpar:0.2.1"
 
+#let scr(it) = text(
+  features: ("ss01",),
+  box($cal(it)$),
+)
+
 
 #let affls = (
   uChicago: ("University of Chicago", "Chicago", "USA"),
@@ -429,11 +434,11 @@ In fact, the authors of Schur Nets intuit that #quote(
   It’ll be an interesting research direction to design suitable criteria for the expressive power of such higher order MPNNs in general.]
 
 This notion, that measuring the ability of GNN to count structures
-like subgraph structures, has been recognized recently by other researchers
+like sub-graph structures, has been recognized recently by other researchers
 as well, and has been formalized by @zhangCompleteExpressivenessHierarchy2023
 in a new framework for expressivity measurement, termed
 _Homomorphism Expressivity_. This initial work established Homomorphism
-Expressivity for subgraph counting GNNs. Therefore, such a framework would
+Expressivity for sub-graph counting GNNs. Therefore, such a framework would
 _not_ be directly applicable to Schur Nets, because it is a spectral invariant
 based GNN. However, following up on that work, Homomorphism Expressivity
 was extended to spectral invariant GNNs such as Schur Nets
@@ -657,15 +662,33 @@ invariant to all permutations on the input graph $cal(G)$.
   ]
 ]
 
-#definition(name: [Homomorphism Expressivity (Q. Zhang et al)@zhangCompleteExpressivenessHierarchy2023])[
+Autobahn works by taking the user-given template graph and classifying
+functions that are equivariant to the entire input graph while judiciously
+breaking symmetry with the template graph's automorphism group
+(see @psuedoAuto). This has advantages and drawbacks, as discussed in
+@SummarizingAutobahnExample.
 
-]
+In contrast, Schur Nets take a spectral approach. In particular,
+Schur Net layers are described by the Corollary proved in their work.
+This Corollary gives the core characterization of a non-higher order
+Schur Net.
 
-#corollary(name: [Schur Net Neuron (from Q. Zhang, Xu & Kondor) @zhangSchurNetsExploiting2025])[
 
-]
 
-= How Autobahn And Schur Nets Differ: An Example <sec:>
+In the next section we compare and constrast how Autobahn and Schur Nets
+how the models compute on a pendant graph with
+a 5-cycle, in precise detail. This will give us the conceptual basis
+to give a formal analysis of the expressivity of both frameworks.
+Moreover, it will suggest that the expressivity of both GNNs frameworks
+is best measured via sub-graph counting, and as a corollary why WL tests
+are not a satistifactory measure of expressivity for these frameworks.
+This will lead us to our major contribution, which is providing a
+precise characterization of Schur Nets and Autobahn within the measurement
+framework of Homomorphism Expressivity.
+
+
+
+= Exemplifying The Expressivity Gap Between Schur Nets and Autobahn <sec:Main1>
 
 With its preliminaries established,
 the first main contribution of this report is to show in full detail
@@ -718,13 +741,18 @@ $<eq:1>
 ]
 
 
-== Autobahn's Behavior On @eq:1 <sec:AutobahnExample>
+== Autobahn's Behavior On The Pendant Graph @eq:1 <sec:AutobahnExample>
 #remark[For simplicity, I may gloss over the promotion and narrowing
   aspects of Autobahn's algorithm. Although those are the essential contribution,
   I am primarily interested in treating group theoretic automorphism based networks,
   as given by @dehaanNaturalGraphNetworks2020]
 We now observe how Autobahn works on @fig:1.
-Our first step is to choose our template graph $cal(T)$
+
+=== Step 1: Choose The Template Graph $cal(T)$ <subsubsec:>
+
+Our first step is to choose our template graph $cal(T)$ that aligns
+with our problem domain. Autobahn is designed to recognized the sub-graphs
+of the input graph $A$ isomorphic to this sub-graph $A$ and break permutation equivariance across sub-graph boundaries, which gives a more expressive class of neural networks than those whose neurons are permutation equivariant to all of $SS_(n)$ (i.e MPNNs).
 Notice that we labelled the nodes with colors corresponding to the selection
 of our template graph.
 
@@ -762,7 +790,7 @@ as rotating or reflecting this sub-graph should not change it.
 
 Now that we have chosen our template graph, Autobahn starts.
 
-=== Step 3 Determine The Sub-graphs Isomorphic To $C_(5)$ <subsubsec:>
+=== Step 2: Determine The Sub-graphs Isomorphic To $C_(5)$ <subsubsec:>
 
 - Objective: To find the sub-graph of $A$ that are isomorphic to the template
   graph $cal(T) = C_(5)$. In other words, find all sub-graphs in our input graph
@@ -772,7 +800,7 @@ Now that we have chosen our template graph, Autobahn starts.
     sigma dot.op A = A_(cal(T)).
   $
 
-=== Step 4 Construct A Function That Is Equivariant to $"Aut"(C_(5)) = D_(5)$
+=== Step 3: Construct A Function That Is Equivariant to $"Aut"(C_(5)) = D_(5)$ <psuedoAuto>
 Let $f^(ell - 1)_(i)$ denote the feature vector form the previous layer ($ell - 1$)
 corresponding to the $i$th vertex. For us, we will consider the first internal layer
 and let
@@ -806,7 +834,7 @@ $
   f'^(0)_(i) = ("deg"(v_(i)))
 $ for $i = {1, ..., 5}$
 
-We consruct our sub-graph neuron so that it is pseudo-equivariant $"Aut"(C_(5))$ if we
+We construct our sub-graph neuron so that it is pseudo-equivariant $"Aut"(C_(5))$ if we
 only compute the features on the sub-graph, but in actuality is not equivariant
 to $"Aut"(C_(5))$. We can construct our sub-graph neuron to be do this by having our sub-graph neuron convolve
 over all permutations in $D_(5)$
@@ -830,20 +858,21 @@ $
   f'^(0) = (3,2,2,2,2) & "in actuality. I.e. with respect to the entire graph."
 $
 
-== Apply Non-Linearity And Add $f^(1)_(6)$ <subsubsec:>
+=== Step 4: Apply Non-Linearity And Add $f^(1)_(6)$ <subsubsec:>
 Finally, we construct the output layer
 
 $
-  f'^(1) = f'^(1) + f^(1)_(6),
+  f^(1) = f'^(1) + f^(1)_(6),
 $ where $f'^(1)$ is computed with
 $f'^(0) = ("deg"(v_(1)), "deg"(v_(2)), "deg"(v_(3)), "deg"(v_(4)), "deg"(v_(5)) = (3,2,2,2,2)$
 
-== Summarizing Autobahn <subsubsec:>
+== Summarizing Autobahn <SummarizingAutobahnExample>
 
 In summary, Autobahn requires you to choose a template graph $cal(T)$
 that reflects the input graph's structures and problem domain nicely.
-For example, we could have chosen $cal(T) = P_(3)$, that is, all paths
+For instance, we could have chosen $cal(T) = P_(3)$, that is, all paths
 of length $3$ in our input graph $A$.
+
 - Finds the sub-graphs isomorphic to $cal(T)$ on $A$.
 - Constructs neurons that are permutation equivariant to $"Aut"(A_(cal(T)))$
   with respect the sub-graph
@@ -855,21 +884,91 @@ In summary, by ensuring functions on sub-graphs are permutation equivariant to $
 Autobahn cleverly breaks permutation equivariance to $D_(5)$ by applying
 this function on $f'^(0)$ evaluated on the entire input graph.
 
-Clearly the major drawback of Autobahn is that it requires
-users
+One apparent drawback of Autobahn is that it requires
+users to select the template sub-graph. On the other hand, that requirement
+can actually be considered advantageous as it gives domain practitioners flexibility
+to choose the template graph that is important to their domain. For instance,
+chemists applying GNN's on molecules can choose their template graph that is
+isomorphic to highly functional sub-structures of the molecule
+@kongMoleculeGenerationPrincipal2022.
+
+However, the major drawback of Autobahn is that is requires considering all elements
+of the automorphism group in order to achieve equivariance,
+via generalized convolution. Moreover, the complexity that arises due
+to overlapping sub-graphs isomorphic to the input graph introduces complexities
+and computational overhead. Autobahn addresses these issues by introducing
+narrowing and promotion,
+but it is still a source of complexity. This is discussed in @A:NarrowExplainer.
+
+== How Schur Nets Handles The Pendant Graph <subsec:SchurNetExample>
+
+The construction of a Schur Net neuron is given by the following corollary
+proved in their work.
+
+#corollary(name: [Schur Net Neuron (Zhang, Xu & Kondor) @zhangSchurNetsExploiting2025])[
+  Consider a GNN on the input graph $cal(G)$, represented by $A$. Let $cal(n)_(F)$
+  be a neuron that operates on sub-graph $F$ of $cal(G)$.
+  Let input sub-graph $F$ (and its features) be represented by
+  $T in RR^(m)$. Let $L$ be the Laplacian of $S$, $U_(1), ...,U_(p)$
+  be the eigenspaces of $L$, and $M_(i)$ be an orthogonal basis
+  for the $i$th eigenspace stacked into a $RR^(n times dim(U_(i)))$
+  Then for any collection of learnable weight matrices
+  $W_(1), ...,W_(p) in RR^(a times b)$
+  $
+    phi : T --> sum_(i=1)^(p)M_(i)M^(T)_(i) T W_(i)
+  $
+  is a permutation equivariant operation.
+]<schur-cor>
+
+Like Autobahn, Schur Net's allows the designer to choose the sub-graph
+$F$ (see @schur-cor).
+Therefore, we choose $F = C_(5)$, inline with the prior section.
+
+Next, we compute the Laplacian of $F$. For convenience, recall that the adjacency
+matrix of the input graph and the 5-cycle template sub-graph stated in
+@eq:1 is given by
+
+#let math_no_number = math.equation.with(
+  block: true,
+  numbering: none,
+)
+#math_no_number([
+  $
+    A &= mat(delim:"[", ..#A_e_main) "(Input Graph)"
+  $])
+and,
+#math_no_number([
+  $A_(cal(T)) &= mat(delim: "[", ..#At) "(5-Cylcle)".$
+])
+#let laplacian_F = (
+  (2, -1, 0, 0, -1),
+  (-1, 2, -1, 0, 0),
+  (0, -1, 2, -1, 0),
+  (0, 0, -1, 2, -1),
+  (-1, 0, 0, -1, 2),
+)
+
+Then the Laplacian of $F$ is given by $L = D_(F) - A_(F)$ so
+$
+  L = mat(delim:"[", ..#laplacian_F).
+$
+
+Next, we compute the eigenvalues of $L$. This is known for 5-cycles.
+Let $lambda_(i)$ denote the $i$th eigenvalue.
+$
+  lambda_(i) = 2 - 2cos((2 pi k)/5)
+$
 
 
+= A General Characterization Of The Expressivity of Both Autobahn And Schur Nets
 
-
-
-
-= Exemplifying The Expressivity Gap Between Schur Nets and Autobahn <sec:Main1>
-
-In this first part of the main section, we
-postpone our use of Homomorphism Expressivity, and analyze
-the different between Autobahn @thiedeAutobahnAutomorphismbasedGraph2021
-and Schur Nets @zhangSchurNetsExploiting2025 by going through
-particular examples.
+The main contribution of this project is to provide a precise characterization
+of the expressivity of automorphism based GNNs given by Autobahn and Natural
+Graph Networks @thiedeGeneralTheoryPermutation2020 @dehaanNaturalGraphNetworks2020
+as opposed to Schur Nets. We are able to do this in general thanks to framework
+introduced by Zhang et al. @zhangCompleteExpressivenessHierarchy2023
+and in particular for Schur Nets thanks to the recent results from
+Zhang and Maron et al @gaiHomomorphismExpressivitySpectral2024.
 
 
 
