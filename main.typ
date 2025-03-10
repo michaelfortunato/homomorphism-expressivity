@@ -244,6 +244,8 @@
   })
 }
 
+#outline()
+
 = Introduction <sec:1>
 
 Placing the task of learning under a mathematical formalism has
@@ -991,7 +993,7 @@ the Schur Net's representation of $D_(5)$ is not irreducible--namely subspaces
 $M_(1)$ and $M_(2)$.
 
 
-= A General Characterization Of The Expressivity of Both Autobahn And Schur Nets
+= A General Characterization Of The Expressivity of Both Autobahn And Schur Nets <main:2>
 
 The main contribution of this project is to provide a precise characterization
 of the expressivity of automorphism based GNNs given by Autobahn and Natural
@@ -1069,6 +1071,10 @@ Let us compute the homomorphism expressivity for a few simple GNNs.
   So $K_(3) in cal(F)^(phi)$ because whenever $cal(X)^(phi)(G) = cal(H)^(phi)(H)$,
   the number of homomorphisms from $K_(3)$, that is the number of triangles
   counts, is the same across both graphs.
+
+  *Conclusion*: So triangles $K_(3) in cal(F)^(phi)$. In lay terms,
+  our GNN $phi$ can recognize triangles.
+
   #let A_G = ((0, 1, 1, 1), (1, 0, 1, 1), (1, 1, 0, 1), (1, 1, 1, 0))
   #let A_H = ((0, 1, 1, 1), (1, 0, 1, 0), (1, 1, 0, 1), (1, 0, 1, 0))
   #let A_Gprime = (
@@ -1155,7 +1161,46 @@ how it does with 3-paths.
     us $3 times 2 = 6$ homomorphisms.
   - $"Hom"(P_(3), G) = 8, "Hom"(P_(3), H) = 6$, so $"Hom"(P_(3), G) != "Hom"(P_(3), H)$.
 
+  *Conclusion*: Since $cal(X)^(phi)(G) = cal(X)^(phi)(H)$ but $"Hom"(P_(3), G) != "Hom"(P_(3), H)$, this implies that $P_(3) in.not cal(F)^(phi)$ by @def:hom.
 ]
+
+== Aside: Homomorphism Expressivity Computation of A Basic Schur Nets <subsec:>
+
+To recapitulate the examples given in @main:2 using Homomorphism Expressivity @def:hom,
+let us compute the Homomorphism Expressivity @def:hom for a very simple
+Schur Net GNN.
+
+#example(name: [Homomorphism Expressivity For A Simple Schur Net])[
+  Let us define $phi$ to a simplified Schur Net that outputs the
+  smallest non-zero eigenvalue of the Laplacian as its invariant $cal(X)^(phi)(cal(G))$.
+  $
+    cal(X)^(phi)(cal(G)) = lambda_(1)(cal(G))
+  $
+  - Let $G$ be a 5-cycle, $G = C_(5)$
+  - Let $H$ be the pendant in @subsec:SchurNetExample
+
+  Using our computations of eigenvalues of the 5-cycle in
+  @table1, we have that $lambda_(1) = 2 - 2"cos"(2 pi / 5) approx 1.38 $
+  for $cal(G)$, a 5-cycle (see @subsec:SchurNetExample).
+  So $cal(X)^(phi)(G) = lambda_(1) approx 1.38$
+
+  On the other hand, I still need to write code to compute the spectrum
+  of $H$, our pendant in @subsec:SchurNetExample,
+  but I will assume is close to $1.38$.
+  So $cal(X)^(phi)(H) = lambda_(1)(H) approx 1.38$.
+
+  With this assumption, we have that
+  $
+    cal(X)^(phi)(G) = cal(X)^(phi)(H) approx 1.382,
+  $
+  allowing us to applying the first criteria of @def:hom.
+
+  Given $cal(X)^(phi)(G) = cal(X)^(phi)(H)$.
+  We compute $"Hom"(F, G)$ and $"Hom"(P_(2), H)$. Of course the question
+  is, which graph $F$ do we want to choose? Let us choose $F = P_(2)$.
+
+]
+
 
 = Acknowledgements
 This work is incomplete. I will send the completed version this weekend, but

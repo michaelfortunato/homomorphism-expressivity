@@ -94,7 +94,7 @@ sub graph $v_(1),...v_(5)$.
 Now, we can ensure equivariance of our function $cal(n)$ on this 5-tuple
 with respect to $D_(5)$, by convolving over the element of $D_(5)$.
 $
-  D_(5) = sum_()^()
+  D_(5) = sum_(sigma in D_(5))^() f
 $
 
 
