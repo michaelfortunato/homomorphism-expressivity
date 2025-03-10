@@ -244,14 +244,14 @@
   })
 }
 
-#outline()
+#outline(depth: 2)
 
-= Introduction <sec:1>
+// = Introduction <sec:1>
 
-Placing the task of learning under a mathematical formalism has
-been the aspiration of different groups of researchers for various reasons:
-philosophers, logicians, information theorists, researchers studying
-AI alignment, and others.
+// Placing the task of learning under a mathematical formalism has
+// been the aspiration of different groups of researchers for various reasons:
+// philosophers, logicians, information theorists, researchers studying
+// AI alignment, and others.
 
 // The explosive commerical success of neural networks attributes itself
 // to advancements amongst the empricists, and in the increasing power of
@@ -269,11 +269,11 @@ AI alignment, and others.
 // @zhangUnderstandingDeepLearning2017 @kruegerDEEPNETSDONT2017
 // @vapnikMeasuringVCdimensionLearning1994.
 
-Historically, mathematicians used objects from statistics to construct
-a formal framework for learning. Simultaneously, a handful of mathematicians
-chose to couch learning in the language of group theory, using representation
-theory of finite groups @fultonRepresentationTheory2004 to realize models on Turing machines
-@woodRepresentationTheoryInvariant1996 @kondorGroupTheoreticalMethods2008.
+// Historically, mathematicians used objects from statistics to construct
+// a formal framework for learning. Simultaneously, a handful of mathematicians
+// chose to couch learning in the language of group theory, using representation
+// theory of finite groups @fultonRepresentationTheory2004 to realize models on Turing machines
+// @woodRepresentationTheoryInvariant1996 @kondorGroupTheoreticalMethods2008.
 
 
 // Recall that designers always construct $phi$ as a composition of
@@ -294,7 +294,7 @@ theory of finite groups @fultonRepresentationTheory2004 to realize models on Tur
 // $cal(G)$, and then ensuring the last layer was invariant to $cal(G)$.
 
 
-= Background <sec:2>
+= Background <Background>
 
 Designers of graph neural networks want their functions
 to treat a graph with one choice of node labels the same
@@ -331,7 +331,7 @@ Schur Nets to avoid having to explicitly state the template graph automorphism.
 While Schur Nets approach to automorphism sub-graph equivariance
 avoids the overhead imposed by the purely group theoretic approach,
 Schur Nets' does not necessary yield an irreducible representation for each
-graph. Therefore, Schur Net-based constructions of equivariance do not
+graph @fultonRepresentationTheory2004. Therefore, Schur Net-based constructions of equivariance do not
 necessarily yield the most generalizable forms of automorphism (Autobahn-type)
 neural networks. Furthermore, the extent of the gap between Schur Nets
 and group theoretic based automorphism networks remains an open question and
@@ -372,7 +372,7 @@ the characters of the frameworks, which we will enforce by making qualitative
 observations of both behaviors.
 
 With these preliminaries and intuitions established, we finally get to the main
-construction of this paper, which is a formal treatment and classification
+contribution of this paper, which is a formal treatment and classification
 of both frameworks under Homomorphism Expressivity
 @gaiHomomorphismExpressivitySpectral2024. First, we show that, in the language
 of _Homomorphism Expressivity_, Schur Nets can be described as a
@@ -421,18 +421,6 @@ invariant to all permutations on the input graph $cal(G)$.
   for any $sigma in SS_(n)$.
 ]<permutation-invariant>
 
-
-#remark[
-  Note,
-  I am not sure exactly how you define permutation equivariance if $f$,
-  represented by a matrix, was not square
-  . For instance if
-  $
-    f = L^(m times n)
-  $
-  and $m != n$, then $sigma dot.op L$ cannot be defined using @def:sga.
-  $dot.op$.
-]
 
 #definition(name: "Permutation Equivariance")[
   Similarly, we say that $f: RR^(n^(k_(1))) -> RR^(n^(k_(2)))$ is
@@ -897,7 +885,7 @@ $
   ($frac(1, sqrt(5)) (0, -sin(pi / 5), sin(2 * pi / 5), -sin(3 * pi / 5), sin(4 * pi / 5))$),
 )
 
-The eigenvalues, their multiplicities $kappa$, and the eigenvectors
+The eigenvalues, their multiplicities, and the eigenvectors
 are shown in @table1.
 
 #figure(
@@ -910,7 +898,7 @@ are shown in @table1.
       [$i$],
       [Eigenvalues ($lambda_(i)$) of $C(5)$],
       [Eigenvectors ($v_(i)$) of $C_(5)$],
-      [Multiplicity, $kappa_(i)$],
+      [Multiplicity],
     ),
     ..for (i, (eig, mult)) in unique_eigs.zip(mults).enumerate() {
       let x = eigenvectors.at(i)
@@ -988,12 +976,19 @@ Whereas Autobahn computes $D_(5)$ directly, allowing more flexibility,
 Schur Nets uses spectral filters to process the node features,
 where each orthogonal sub-space corresponds to a part of the cycle.
 
-The main limitation, as shown by the eigenvalue multiplicity @table1, is that
-the Schur Net's representation of $D_(5)$ is not irreducible--namely subspaces
-$M_(1)$ and $M_(2)$.
+In this example the main limitation in general, as shown by the eigenvalue multiplicity @table1, is *not*
+that the eigenspaces $M_(i)$ are irreducible, in fact they are for this graph
+(see section D of the supplement in @zhangSchurNetsExploiting2025),
+but that Schur Net's is *unable* to identify if $M_(i)$ and $M_(j)$ are
+isomorphic. In general however, Schur Nets may not yield a
+irreducible representation for every graph.
+
 
 
 = A General Characterization Of The Expressivity of Both Autobahn And Schur Nets <main:2>
+
+== Preliminaries <subsec:>
+
 
 The main contribution of this project is to provide a precise characterization
 of the expressivity of automorphism based GNNs given by Autobahn and Natural
@@ -1164,42 +1159,149 @@ how it does with 3-paths.
   *Conclusion*: Since $cal(X)^(phi)(G) = cal(X)^(phi)(H)$ but $"Hom"(P_(3), G) != "Hom"(P_(3), H)$, this implies that $P_(3) in.not cal(F)^(phi)$ by @def:hom.
 ]
 
-== Aside: Homomorphism Expressivity Computation of A Basic Schur Nets <subsec:>
+Before proceeding to the main result, we cite the recent result from
+Zhang and Maron et al @gaiHomomorphismExpressivitySpectral2024, which
+gives a general way to compute the Homomorphism expressivity of spectral
+invariant graphs, of which Schur Nets is a part.
 
-To recapitulate the examples given in @main:2 using Homomorphism Expressivity @def:hom,
-let us compute the Homomorphism Expressivity @def:hom for a very simple
-Schur Net GNN.
-
-#example(name: [Homomorphism Expressivity For A Simple Schur Net])[
-  Let us define $phi$ to a simplified Schur Net that outputs the
-  smallest non-zero eigenvalue of the Laplacian as its invariant $cal(X)^(phi)(cal(G))$.
+#theorem(
+  name: [Homomorphism Expressivity of Spectral Invariant GNNs (Zhang & Maron et al) @gaiHomomorphismExpressivitySpectral2024 ],
+)[
+  For any $d in NN$, the homomorphism expressivity of spectral
+  invariant GNNs with $d$ iterations exists and can be
+  characterized as follows:
   $
-    cal(X)^(phi)(cal(G)) = lambda_(1)(cal(G))
+    cal(F)^("Spec", (d)) = { F bar.v F italic("has parallel trees of depth at most d")}
   $
-  - Let $G$ be a 5-cycle, $G = C_(5)$
-  - Let $H$ be the pendant in @subsec:SchurNetExample
+  Specifically, the following properties hold:
 
-  Using our computations of eigenvalues of the 5-cycle in
-  @table1, we have that $lambda_(1) = 2 - 2"cos"(2 pi / 5) approx 1.38 $
-  for $cal(G)$, a 5-cycle (see @subsec:SchurNetExample).
-  So $cal(X)^(phi)(G) = lambda_(1) approx 1.38$
-
-  On the other hand, I still need to write code to compute the spectrum
-  of $H$, our pendant in @subsec:SchurNetExample,
-  but I will assume is close to $1.38$.
-  So $cal(X)^(phi)(H) = lambda_(1)(H) approx 1.38$.
-
-  With this assumption, we have that
-  $
-    cal(X)^(phi)(G) = cal(X)^(phi)(H) approx 1.382,
-  $
-  allowing us to applying the first criteria of @def:hom.
-
-  Given $cal(X)^(phi)(G) = cal(X)^(phi)(H)$.
-  We compute $"Hom"(F, G)$ and $"Hom"(P_(2), H)$. Of course the question
-  is, which graph $F$ do we want to choose? Let us choose $F = P_(2)$.
-
+  - Given any graphs $G$ and $H$, $cal(X)^("Spec", (d))_(G)(G) = cal(X)_(H)^("Spec", (d))(H)$ if and only if, for all connected graphs $F$ with parallel tree depth at most $d$,
+    $"Hom"(F, G) = "Hom"(F, H)$.
+  - $cal(F)^("Spec", (d))$ is maximal: for any connected graph $F in.not cal(F)^("Spec", (d))$, there exists graphs $G$ and $H$ so that $cal(X)_(G)^("Spec", (d))(G) = cal(H)_(H)^("Spec", (d))(H)$ and $"Hom"(F,G) != "Hom"(F,H)$.
 ]
+
+
+== Main Result: Autobahn vs. Schur Nets
+
+To show how Autobahn and Schur Nets compare under Homomorphism Expressivity.
+We choose a pair of graphs $G$ and $H$ and a substructure $F$, and
+show how Schur Nets is cannot classify such a substructure in $d = 1$
+iterations. We show this by computing the homomorphism expressivity given
+in @def:hom. Similarly, we show by computing its homomorphism expressivity that Autobahn can recognize our chosen substructure
+$F$ . We then discuss the implications of this result.
+
+
+#let A_k33 = (
+  (0, 0, 0, 1, 1, 1),
+  (0, 0, 0, 1, 1, 1),
+  (0, 0, 0, 1, 1, 1),
+  (1, 1, 1, 0, 0, 0),
+  (1, 1, 1, 0, 0, 0),
+  (1, 1, 1, 0, 0, 0),
+)
+
+#let A_triangle = (
+  (0, 1, 1, 1, 0, 0),
+  (1, 0, 1, 0, 1, 0),
+  (1, 1, 0, 0, 0, 1),
+  (1, 0, 0, 0, 1, 1),
+  (0, 1, 0, 1, 0, 1),
+  (0, 0, 1, 1, 1, 0),
+)
+
+#let A_C3 = (
+  (0, 1, 1),
+  (1, 0, 1),
+  (1, 1, 0),
+)
+
+Our graphs will be
+
+#subpar.grid(
+  columns: (1fr, 1fr),
+  inset: (top: 2em, left: 2em, right: 2em, bottom: 2em),
+  gutter: 20pt,
+  {
+    set math.equation(numbering: none)
+    $
+      G = K_(3,3) = mat(delim:"[", ..#A_k33)
+    $
+  },
+  draw-graph-from-adj-matrix(A_k33),
+  {
+    set math.equation(numbering: none)
+    $
+      H = mat(delim:"[", ..#A_triangle)
+    $
+  },
+  draw-graph-from-adj-matrix(A_triangle),
+  {
+    set math.equation(numbering: none)
+    $
+      F = C_(3) = mat(delim:"[", ..#A_C3)
+    $
+  },
+  draw-graph-from-adj-matrix(A_C3),
+)
+
+
+
+// == Aside: Homomorphism Expressivity Computation of A Basic Schur Nets <subsec:>
+
+// To recapitulate the examples given in @main:2 using Homomorphism Expressivity @def:hom,
+// let us compute the Homomorphism Expressivity @def:hom for a very simple
+// Schur Net GNN. We will choose $F = P_(2)$. In this way, we will
+// measure Schur Nets' ability to count edges in this new framework.
+//
+// #example(name: [Homomorphism Expressivity For A Simple Schur Net])[
+//   Let us define $phi$ to a simplified Schur Net that outputs the
+//   smallest non-zero eigenvalue of the Laplacian as its invariant
+//   for a given graph $cal(G)$. So
+//   $
+//     cal(X)^(phi)(cal(G)) = lambda_(1)(cal(G))
+//   $
+//
+//   - Let $G$ be a 5-cycle, $G = C_(5)$
+//   - Let $H$ be the pendant in @subsec:SchurNetExample
+//
+//   Using our computations of eigenvalues of the 5-cycle in
+//   @table1, we have that $lambda_(1) = 2 - 2"cos"(2 pi / 5) approx 1.38 $
+//   for $cal(G)$, a 5-cycle (see @subsec:SchurNetExample).
+//   So $cal(X)^(phi)(G) = lambda_(1) approx 1.38$
+//
+//   On the other hand, I still need to write code to compute the spectrum
+//   of $H$, our pendant in @subsec:SchurNetExample,
+//   but I will assume is close to $1.38$.
+//   So $cal(X)^(phi)(H) = lambda_(1)(H) approx 1.38$.
+//
+//   With this assumption, we have that
+//   $
+//     cal(X)^(phi)(G) = cal(X)^(phi)(H) approx 1.382,
+//   $
+//   allowing us to applying the first criteria of @def:hom.
+//
+//   Given $cal(X)^(phi)(G) = cal(X)^(phi)(H)$.
+//   We compute $"Hom"(F, G)$ and $"Hom"(P_(2), H)$. Of course the question
+//   is, which graph $F$ do we want to choose? Let us choose $F = P_(2)$.
+//
+//   - $"Hom"(P_(2), G)$: Number of edges in $G = C_(5)$: which is $5$.
+//   - $"Hom"(P_(2), H)$: Number of edges in the pendant graph $H$: which is 5 for the cycle plus 1 for
+//     the pendant, 6.
+//   - $"Hom"(P_(2), G) = 5$, $"Hom"(P_(2), H) = 6$, so $"Hom"(P_(2), G) != "Hom"(P_(2), H)$.
+//
+//   *Conclusion*: $cal(X)^(phi)(G) = cal(X)^(phi)(H)$, but
+//   $"Hom"(P_(2), G) != "Hom"(P_(2), H)$, which means that
+//   $P_(2) in.not cal(F)^(phi)$.
+//
+//   This suggests that this particular Schur Nets example
+//   might not directly count edges, however we did assume that
+//   $cal(X)^(phi)(H) approx 3.82$, which may be incorrect in practice.
+// ]
+//
+// == The Homomorphism Expressivity of Autobahn <subsec:>
+
+
+
 
 
 = Acknowledgements

@@ -7,6 +7,72 @@
 
 = Appendix
 
+
+== Discussion: Autobahn Is a $k$-Local GNN
+
+
+Zhang et al @zhangCompleteExpressivenessHierarchy2023 provides a
+definition for GNNs that are based on graph coloring, which is a reformulation
+of the coloring perspective introduced in @weisfeilerREDUCTIONGRAPHCANONICAL.
+Graph GNNs then fall into one of the sub-categories given by this coloring
+definition. Their definition is below, and in particular, one could
+say that Autbahn falls into the k-Local GNN GNN category. In this subsection,
+we discuss Autobahn and the general results of Homorphism expressivity
+for k-Local GNNs. As of writing, a general characterization for k local
+GNNs has only been done for $k = 2$.
+
+#definition(name: [Zhang et al @zhangCompleteExpressivenessHierarchy2023])[
+  GNNs can be generally described as graph functions that
+  are invariant under isomorphism. This is precisely the characterization
+  we gave at the beginning of the report, where in @Background we said the key requirement of graph neural networks is to remain invariant under permutations of the symmetric group, and of course for any $sigma in SS_(n)$,
+  $cal(G) tilde.equiv sigma dot.op cal(G)$.
+
+  Most GNN's therefore, can be said to adhere to a _color refinement_
+  approach: they maintain a feature representation, i.e. a color, for
+  each vertex or vertex tuple, and iteratively refine these features
+  by processing them through the equivariant hidden layers, until the last layer
+  pools all of these features together to ensure invariance (isomorphism).
+
+  - *MPNN*: Given a graph $G$, MPNN maintains a color
+    $cal(X)^("MP")_(G)(u)$ for each vertex $u in V_(G)$. Initially
+    the color only depends on the label of the vertex. For instance
+    $cal(X)^("MP",(0))_(G)(u) = ell_(G)(u)$. Then, for each layer,
+    the color is refined by the update
+    $
+      cal(X)_(G)^("MP",(t+1))(u) = "hash"lr(( cal(X)_(G)^("MP",(t)),
+      lr({{ cal(X)_(G)^("MP", (t))(v) bar.v v in N_(G)(u) }}))).
+    $
+    Here, we used ${{ dot.op }}$ to denote the multi-set.
+    After a certain point, the color processing stabilizes and the graph
+    representation becomes $cal(X)_(G)^("MP")(G) = {{cal(X)_(G)^("MP")(u) bar.v u in V_(G)}}$
+
+  - *Local GNN*. We quote their definition #quote(attribution: <zhangCompleteExpressivenessHierarchy2023>, "Inspired by the k-WL test (Grohe, 2017), Local k-GNN is defined by replacing all global aggregations in k-WL by sparse ones that only aggregate local neighbors, yielding a much more efficient CR algorithm.")
+  I omit the other sub-graph types.
+]<def:graphtypes>
+
+Automorphism based GNN @dehaanNaturalGraphNetworks2020 such as
+Autobahn are considered by homomorphism expressivity to be _local
+GNN's_, according to @def:graphtypes. Their forumulation for local GNN's
+is not as precise as for the other 3 GNN classes they characterize, but
+in general, Autobahn works by being a sparse k-WL.
+The number of vertices in the given template graph corresponds to $k$.
+Moreover, Autobahn avoids the computation overhead of k-WL by identifying
+sub-sequences of vertices that are isomorphic to the template sub-graph.
+
+Without a more rigorous formulation of the Local GNN variant we cannot
+prove the Autobahn is a local GNN, which precludes us from using
+the results for local 2-GNN's in @gaiHomomorphismExpressivitySpectral2024.
+Moreover, Autobahn is not in a general a local 2-GNN, so Theorem 3.4 @zhangWeisfeilerLehmanQuantitativeFramework2024 cannot be
+used. However, while we have not classified Autobahn in general under homomorphism
+expressivity, we classify Autobahn under certain sub-graphs and compare.
+
+Researching a proper definition of Local k-GNN and formulating Autobahn
+in terms of it is an area for future investigation. However,
+the only proven general characterization of Local k-GNN is for $k=2$ @zhangWeisfeilerLehmanQuantitativeFramework2024, and
+the proof is a major technical contribution. Therefore, it may not be best
+to consider this route, especially as homomorphism expressivity provides
+valuable insight alone when using it on particular graphs, as we show now.
+
 #definition(name: [Narrowing In Autobahn @thiedeAutobahnAutomorphismbasedGraph2021])[
   Let $(i_(1),...,i_(k))$ be an ordered subset of ${1,2,...m}$.
   The set ${1,...,m}}$ corresponds to the sub-graph isomorphic
@@ -27,7 +93,7 @@
   ]
 ]<def:narrowing>
 
-== How Narrowing And Promotion Work <A:NarrowExplainer>
+== How Narrowing And Promotion Work In Autobahn: A Qualitative Explanation <A:NarrowExplainer>
 
 #remark[
   We omitted details of Autobahn's primary contribution, that
