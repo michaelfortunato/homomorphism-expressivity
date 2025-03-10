@@ -187,12 +187,148 @@
   })
 }
 
+#let draw-graph-from-adj-matrix2(
+  adj-matrix,
+  positions: none,
+  layout: "circular", // New parameter: "circular" or "bipartite"
+  node_label_fn: i => text(str(i + 1)),
+  node_color_function: i => white,
+  node-radius: 0.45,
+  stroke: (thickness: 1pt),
+) = {
+  canvas({
+    import draw: *
+
+    // Number of nodes (assuming the matrix is square)
+    let n = adj-matrix.len()
+    if n == 0 or adj-matrix.at(0).len() != n {
+      panic("Adjacency matrix must be square")
+    }
+    let stroke = 1pt
+
+    // Helper function to check if the graph is bipartite and partition vertices
+    let is-bipartite(adj-matrix) = {
+      let n = adj-matrix.len()
+      let colors = array.range(n).map(_ => none) // none: uncolored, 0 or 1: bipartite sets
+      let queue = (0,) // Start BFS from vertex 0
+      colors.at(0) = 0 // Assign vertex 0 to set 0
+
+      // BFS to color vertices
+      while queue.len() > 0 {
+        let u = queue.at(0)
+        queue = queue.slice(1) // Remove u from queue
+        for v in range(n) {
+          if adj-matrix.at(u).at(v) == 1 {
+            // Edge between u and v
+            if colors.at(v) == none {
+              // Uncolored vertex
+              colors.at(v) = if colors.at(u) == 0 { 1 } else { 0 }
+              queue.push(v)
+            } else if colors.at(v) == colors.at(u) {
+              // Conflict: same color
+              return (false, none, none)
+            }
+          }
+        }
+      }
+
+      // Partition vertices into two sets based on colors
+      let set0 = ()
+      let set1 = ()
+      for i in range(n) {
+        if colors.at(i) == 0 {
+          set0.push(i)
+        } else if colors.at(i) == 1 {
+          set1.push(i)
+        }
+      }
+      (true, set0, set1)
+    }
+
+    // Determine node positions
+    let node-positions = if positions != none {
+      // Use provided positions
+      if positions.len() != n {
+        panic("Number of positions must match number of nodes")
+      }
+      positions
+    } else if layout == "bipartite" {
+      // Bipartite layout: two columns
+      let (is-bip, set0, set1) = is-bipartite(adj-matrix)
+      if not is-bip {
+        // Fallback to circular if not bipartite
+        let radius = calc.max(2, calc.sqrt(n)) / 2
+        let center = (0, 0)
+        let positions = ()
+        for i in range(n) {
+          let angle = 360deg / n * i
+          let x = radius * calc.cos(angle)
+          let y = radius * calc.sin(angle)
+          positions.push((x, y))
+        }
+        positions
+      } else {
+        // Place vertices in two columns
+        let positions = array.range(n).map(_ => (0, 0))
+        let max-set-size = calc.max(set0.len(), set1.len())
+        let height = calc.max(2, max-set-size) // Vertical spacing
+        let width = 2 // Horizontal separation between sets
+
+        // Position set0 on the left (x = -1)
+        let y-step0 = if set0.len() > 1 { height / (set0.len() - 1) } else { 0 }
+        for (i, v) in set0.enumerate() {
+          let y = -height / 2 + i * y-step0
+          positions.at(v) = (-width / 2, y)
+        }
+
+        // Position set1 on the right (x = 1)
+        let y-step1 = if set1.len() > 1 { height / (set1.len() - 1) } else { 0 }
+        for (i, v) in set1.enumerate() {
+          let y = -height / 2 + i * y-step1
+          positions.at(v) = (width / 2, y)
+        }
+
+        positions
+      }
+    } else {
+      // Default: Circular layout
+      let radius = calc.max(2, calc.sqrt(n)) / 2
+      let center = (0, 0)
+      let positions = ()
+      for i in range(n) {
+        let angle = 360deg / n * i
+        let x = radius * calc.cos(angle)
+        let y = radius * calc.sin(angle)
+        positions.push((x, y))
+      }
+      positions
+    }
+
+    // Draw edges based on the adjacency matrix
+    for i in range(n) {
+      for j in range(i + 1, n) {
+        if adj-matrix.at(i).at(j) == 1 {
+          line(node-positions.at(i), node-positions.at(j), stroke: stroke)
+        }
+      }
+    }
+
+    // Draw nodes
+    for (i, pos) in node-positions.enumerate() {
+      circle(pos, radius: node-radius, fill: node_color_function(i), stroke: stroke)
+      content(pos, node_label_fn(i), anchor: "center")
+    }
+  })
+}
+
+
 // Function to draw a graph from an adjacency matrix
 #let draw-graph-from-adj-matrix(
   adj-matrix,
   positions: none,
   node_label_fn: i => text(str(i + 1)),
   node_color_function: i => white,
+  layout: "circular", // New parameter: "circular" or "bipartite"
   node-radius: 0.45,
   stroke: (thickness: 1pt), // Changed to dictionary format
 ) = {
@@ -1178,7 +1314,7 @@ invariant graphs, of which Schur Nets is a part.
   - Given any graphs $G$ and $H$, $cal(X)^("Spec", (d))_(G)(G) = cal(X)_(H)^("Spec", (d))(H)$ if and only if, for all connected graphs $F$ with parallel tree depth at most $d$,
     $"Hom"(F, G) = "Hom"(F, H)$.
   - $cal(F)^("Spec", (d))$ is maximal: for any connected graph $F in.not cal(F)^("Spec", (d))$, there exists graphs $G$ and $H$ so that $cal(X)_(G)^("Spec", (d))(G) = cal(H)_(H)^("Spec", (d))(H)$ and $"Hom"(F,G) != "Hom"(F,H)$.
-]
+]<theorem:maron>
 
 
 == Main Result: Autobahn vs. Schur Nets
@@ -1227,7 +1363,7 @@ Our graphs will be
       G = K_(3,3) = mat(delim:"[", ..#A_k33)
     $
   },
-  draw-graph-from-adj-matrix(A_k33),
+  draw-graph-from-adj-matrix2(A_k33, layout: "bipartite"),
   {
     set math.equation(numbering: none)
     $
@@ -1243,6 +1379,71 @@ Our graphs will be
   },
   draw-graph-from-adj-matrix(A_C3),
 )
+
+=== One Layer ($d = 1$) Schur Nets
+
+Using @theorem:maron, we compute the parallel tree depth of $F = C_(3)$.
+$C_(3)$ is just a 3-cycle, it has parallel tree depth of $2$ because:
+
+
+- The first step breaks the cycle #footnote[See Definition 3.1 and Definition 3.2
+  in @gaiHomomorphismExpressivitySpectral2024 for more info on how to compute
+  parallel tree depth.
+  In essence, the way it works is by removing one edge one at a time until you hit a
+  trivial structure.]
+
+- The second removal turns $C_(3)$ into an edge, which is as trivial structure.
+
+Therefore, by @theorem:maron, Schur Nets, which is a spectral invariant GNN,
+will need at least $d = 2$ iterations to recognize $C_(3)$. With only one iteration,
+Schur nets can only count homomorphisms for graph $F$ with parallel tree depth
+$<= 1$. Because $C_(3)$ has parallel tree depth of $2$, a Schur Net with $d = 1$
+cannot correctly compute $"Hom"(C_(3), G)$ or $"Hom"(C_(3), H)$. *In other words, a one layer ($d = 1$) Schur Nets cannot distinguish graphs $G$ and $H$
+using $C_(3)$.*
+
+\
+
+=== Two Layer ($d = 2$) Schur Nets
+
+So, Schur Nets cannot distinguish $G$ and $H$ based on $C_(3)$.
+What would happen if we let Schur Nets go over the graph twice, $d = 2$?
+In other words, what if we let Schur Nets neural network have $d = 2$ layers?
+_The answer is yes._
+
+Recall the parallel tree depth of $C_(3)$ is $2$. @theorem:maron implies that
+that Schur Nets can handle graphs with parallel tree depth $<= 2$. Therefore,
+we need to see how Schur Nets counts the homomorphisms $"Hom"(C_(3), G)$
+and $"Hom"(C_(3), H)$ accurately.
+
+- $"Hom"(C_(3), G) = "Hom"(C_(3), K_(3,3)) = 0$:
+  This is immediately obvious because $K_(3,3)$ has no triangles in it.
+- $"Hom"(C_(3), H) = "Hom"(C_(3),"Triangular Prism") = 12$:
+  Imagine $H$ as 3 dimensional solid, whose top and bottoms are a triangles,
+  and each vertex of the one triangle has an edge to its corresponding vertex in
+  the other triangle. Each triangle has 3 homomorphisms (isomorphisms in this case)
+  to $C_(3)$, as we can walk $C_(3)$ by choosing 3 starting vertices and walk in
+  reverse: $2 times 3$. Given that there are two triangles, that gives us $12$.
+
+With the homomorphism counts in hand, observe that since
+$"Hom"(C_(3), G) = 0 != 12 = "Hom"(C_(3), H)$, Schur Nets can distinguish
+$G$ and $H$. *In summary, a 2 layer Schur Nets network can distinguish
+$G$ and $H$ by counting triangles (i.e. homomorphism to $C_(3)$).*
+
+=== One Layer Autobahn
+
+Autobahn can distinguish $G$ and $H$ via $F = C_(3)$ (triangles)
+in one layer. I provide a brief sketch of a proof. An alternative
+proof, where we interpret Autobahn as a local 2 GNN, is given in the Appendix.
+
+One way to see this for Autobahn in general is simply to set the template graph
+$cal(T) = C_(3)$. Then, because by design Autobahn computes sub-graph
+automorphisms to the template graph $cal(T)$, for each sub-graph
+Autobahn visits, it can simply output the number "$6$" to the pooling layer.
+Then the pooling layer, which gathers each sub-graph activation together,
+will sum these 6's and output the result, the result will be the
+$"Hom"(cal(G), C_(3))$ (where $cal(G)$ is our input graph).
+
+
 
 
 
@@ -1299,23 +1500,34 @@ Our graphs will be
 // ]
 //
 // == The Homomorphism Expressivity of Autobahn <subsec:>
+//
+=== Implications
 
+At a depth of $1$, we saw that Schur Nets lacked the expressivity to detect triangles on $G = K_(3,3)$, and $H$. Autobahn, in contrast, can distinguish detect $G$ and $H$ via triangles $C_(3)$.
 
+However, once we increased Schur Nets to two layers ($d = 2$), Schur Nets can
+distinguish $G$ and $H$ using $C_(3)$. The takeaway is that Autobahn is
+highly expressive because it allows users to select template graph $cal(T)$
+that are salient to the problem domain. But Autobahn has complexity and requires
+defining $cal(T)$. Schur Nets on the other, sacrifices some of
+the dedicated expressiveness of Autobahn but is a simpler architecture that
+generalizes to different groups of graphs.
 
+In essence, given a classification task, if you want your GNN
+value a sub-graph, whose parallel tree length is quite large,
+you should probably _avoid_ using Schur Nets. In this case, by @theorem:maron
+Schur Nets will only be able to recognize your sub-graph after many iterations.
+
+In this case, you want to use Autobahn and construct make its template
+graph $cal(T)$ your sub-group of interest.
+
+On the other hand, if you do not have a particular sub-structure of interest,
+or your problem domain has an infeasible number of sub-graphs that are relevant,
+it may be best to avoid using Autobahn in favor for Schur Nets. *This is especially true, if those many sub-graphs have small parallel tree depths*.
+
+= Conclusion <sec:>
 
 
 = Acknowledgements
 This work is incomplete. I will send the completed version this weekend, but
 I acknowledged that this submission will be the one that is graded.
-
-== TODOs <sec:>
-
-- Transcribe C4 example of 5 node (pendant node makes it clear, but I like comparing it to $SS_(4)$ better)
-  from scratch notes but already 1/3 way.
-- Transcribe C3 example (my first attempt earlier this week, include it ?)
-- Now, gather parallel trees analysis notes for $d = 2$ and $3$. (Too many examples)?
-- Now, show exactly how Schur Nets is good at capturing parallel trees up to $d$,
-  show autobahn captures symmetries more generally.
-  *Schur Nets may miss symmetries in parallel trees after a certain depth.*
-
-

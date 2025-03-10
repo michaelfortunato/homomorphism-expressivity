@@ -1,7 +1,11 @@
 #import "@preview/lemmify:0.1.8": new-theorems
 
-#let (definition, remark, rules) = new-theorems("theorem_group", ("definition": [Definition], "remark": [Remark]))
+#let (definition, proof, remark, rules) = new-theorems(
+  "theorem_group",
+  ("definition": [Definition], "proof": [Proof], "remark": [Remark]),
+)
 #show: rules
+
 
 
 
@@ -92,6 +96,20 @@ valuable insight alone when using it on particular graphs, as we show now.
     dependent on the important nodes $(v_(i_(1)), ..., v_(i_(k)))$.
   ]
 ]<def:narrowing>
+
+== Autobahn As a Local 2-GNN Distinguishes
+
+Autobahn is a very flexible framework. Assuming we can indeed
+think of Autobahn as a k-local GNN, we show that, even as a 2-local GNN, it
+it is distinguishes the graphs given in @main:2.
+
+#proof(name: "Trivial")[
+  Using @zhangWeisfeilerLehmanQuantitativeFramework2024, all 2-local GNNs
+  can recognize any two graphs $G$ and $H$ if via $F$, if $F$ is a _strongly nested
+ear decomposition_ @eppsteinParallelRecognitionSeriesparallel1992 @zhangWeisfeilerLehmanQuantitativeFramework2024.
+  $C_(3)$ is indeed a strongly nested
+]
+
 
 == How Narrowing And Promotion Work In Autobahn: A Qualitative Explanation <A:NarrowExplainer>
 
