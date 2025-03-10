@@ -953,11 +953,55 @@ $
   L = mat(delim:"[", ..#laplacian_F).
 $
 
-Next, we compute the eigenvalues of $L$. This is known for 5-cycles.
+Next, we compute the eigenvalues of $L$. This is known for 5-cycles
+@trevisanLecture06.
 Let $lambda_(i)$ denote the $i$th eigenvalue.
+Then for $i = k + 1$, compute $i = 1,...,5$
 $
   lambda_(i) = 2 - 2cos((2 pi k)/5)
 $
+
+We also know the eigenvectors are given by the columns of the discrete Fourier
+matrix. So the $k$th eigenvector is given by
+$
+  v^((k))_(j) = 1/sqrt(n) e^((2 pi i k j)/n), #h(.4em) j=0,1,...,n-1, #h(.4em) n = 5.
+$
+
+In particular
+#let eigenvalues = ()
+#for k in (0, 1, 2, 3, 4) {
+  let val = 2 - 2 * calc.cos(2 * calc.pi * k / 5)
+  eigenvalues = eigenvalues + (val,)
+}
+#let unique_eigs = array.dedup(eigenvalues)
+#let mults = (1, 2, 2) //unique_eigs.map(eig => eigenvalues.filter(x => calc.round(x, digits: 3) == eig).len())
+#let eigenvectors = (
+  ($frac(1, sqrt(5)), frac(1, sqrt(5)), frac(1, sqrt(5)), frac(1, sqrt(5)), frac(1, sqrt(5))$),
+  ($frac(1, sqrt(5)) (1, cos(2 * pi / 5), cos(4 * pi / 5), cos(4 * pi / 5), cos(2 * pi / 5))$),
+  ($frac(1, sqrt(5)) (0, -sin(2 * pi / 5), -sin(4 * pi / 5), sin(4 * pi / 5), sin(2 * pi / 5))$),
+  ($frac(1, sqrt(5)) (1, cos(4 * pi / 5), cos(2 * pi / 5), cos(4 * pi / 5), cos(4 * pi / 5))$),
+  ($frac(1, sqrt(5)) (0, -sin(pi / 5), sin(2 * pi / 5), -sin(3 * pi / 5), sin(4 * pi / 5))$),
+)
+
+#figure(
+  caption: [The Eigenvalues of The $C_(5)$ Laplacian $L$],
+  supplement: [Figure],
+  table(
+    columns: (auto, auto, auto, auto),
+    inset: 10pt,
+    table.header(
+      [$i$],
+      [$lambda_(i)$ of $C(5)$],
+      [Multiplicity, $kappa_(i)$],
+      [Eigenvectors],
+    ),
+    ..for (i, (eig, mult)) in unique_eigs.zip(mults).enumerate() {
+      let x = eigenvectors.at(i)
+      (str(i), str(eig), str(mult), $vec(#x)$)
+    }
+  ),
+)
+
 
 
 = A General Characterization Of The Expressivity of Both Autobahn And Schur Nets
