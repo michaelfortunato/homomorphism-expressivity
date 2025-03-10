@@ -3,6 +3,8 @@
 #let (definition, remark, rules) = new-theorems("theorem_group", ("definition": [Definition], "remark": [Remark]))
 #show: rules
 
+
+
 = Appendix
 
 #definition(name: [Narrowing In Autobahn @thiedeAutobahnAutomorphismbasedGraph2021])[
@@ -17,7 +19,7 @@
   let $tilde(s) in SS_(m)$ be the permutation that applies $s$ to the last $m -k$ elements. Then, given our activation function $f: SS_(m) -> RR^(d)$,
   the _narrowing_ of $f$ to $(i_(1),...,i_(k))$ is
   $
-    f arrow.b_(i_(1),...i_(k)) = (m - k)!^(-1) sum_(s in SS_(m-k))^()f(tilde(u) tilde(s) t)
+    f #h(-.01em) scripts(arrow.b)_(i_(1),...i_(k)) = (m - k)!^(-1) sum_(s in SS_(m-k))^()f(tilde(u) tilde(s) t)
   $
   #remark[This was taken from @thiedeAutobahnAutomorphismbasedGraph2021.
     At a high-level narrowing produces a function $f arrow.b$ that is only

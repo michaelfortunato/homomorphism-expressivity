@@ -191,7 +191,7 @@
 #let draw-graph-from-adj-matrix(
   adj-matrix,
   positions: none,
-  node_label_fn: i => text(str(i)),
+  node_label_fn: i => text(str(i + 1)),
   node_color_function: i => white,
   node-radius: 0.45,
   stroke: (thickness: 1pt), // Changed to dictionary format
@@ -272,93 +272,6 @@ a formal framework for learning. Simultaneously, a handful of mathematicians
 chose to couch learning in the language of group theory, using representation
 theory of finite groups @fultonRepresentationTheory2004 to realize models on Turing machines
 @woodRepresentationTheoryInvariant1996 @kondorGroupTheoreticalMethods2008.
-
-On one hand, the theory of finite groups is of interest to researchers building models
-on graphs because a graph, which is a set of vertices and a collection of
-binary relations, is much like a group. On the other hand, for those studying
-group actions, a group action on a graph can be readily interpreted, motivating
-those neural network theorists to first try to apply their formalism on various types of
-graph learning problems.
-
-In an attempt to create a group based formalism for learning, graphs
-are an attractive object of which to first study because the object suggests
-that actions on them respect certain constraints so loudly and so
-naturally, that researchers consider the constraints to be axiomatic.
-In particular, given a representation $A in {0,1}^(n times n)$ of a graph
-$cal(G)$, permuting the labels of each node the same graph, and so
-functions we wish to construct should be insensitive to this augmentation.
-This can be formalized by saying that given our graph $cal(G)$, we want
-$f(cal(G)) = f(sigma dot.op cal(G))$ for any permutation $sigma in SS_(n)$.
-
-To achieve this invariance, designers
-
-In the most abstract sense, given a graph $cal(G)$,
-researchers wish to construct a function $phi$ so that $phi(cal(G))$ yields
-something useful. We want to define $phi$ as a composition of a finite number of layers
-$ell$
-
-$
-  phi = phi^(ell) compose phi^(ell - 1) ... phi^(2) compose phi^(1).
-$<base_phi>
-
-
-
-To motivate the group theoretic formalism we expound in this paper,
-let's consider problem of designing a function that takes a graph $cal(G)$
-in the form of a star, and consider how we want to design such a function.
-
-#example[
-  We define a _star graph_ to be a graph $cal(G)$ with $n$
-  vertices, where the first $n - 1$ have an edge to the $n$th vertex,
-  and no other edges exist in the graph.We wish to construct a
-  function $phi$ that indicates whether or not
-  a graph is a star.
-
-  Two star graphs are shown in @fig1.
-
-  // Place figures side by side using a grid
-  #let fig1() = figure(
-    caption: [ The Original Star Graph ],
-    supplement: [Figure],
-    draw-star-graph(6),
-  )
-
-  #let _s7 = i => {
-    if i == 0 {
-      return text(str(6))
-    } else if (i == 6) {
-      return text(str(0))
-    } else {
-      return text(str(i))
-    }
-  }
-
-  #let fig2() = figure(
-    // caption: [The Star Graph under $sigma = $ in $S_(7)$, which is not an automorphism],
-    caption: [The Star Graph under $sigma = (0 & 6)$],
-    supplement: [Figure],
-    draw-star-graph(6, node_label_fn: _s7),
-  )
-  #let padding = 2em
-  #subpar.grid(
-    columns: (1fr, 1fr),
-    inset: (top: padding, left: padding, right: padding, bottom: padding),
-    gutter: 20pt,
-    [#fig1() <fig1.a>],
-    [#fig2() <fig1.b> ],
-    label: <fig1>,
-    caption: [A star graph under different labellings],
-  )
-
-  Say our function $phi$ was first given the graph in @fig1.a and correctly
-  classified it. Now we relabel the nodes in our graph by swapping the label
-  on node 0 with the label on node 6. The relabel graph is shown in @fig1.b.
-
-  We want our function to still classy the graph as a star graph.
-  In fact, no matter how we label the graph's nodes,
-  we still want our function to classify the graph as a star graph.
-
-] <example1>
 
 
 // Recall that designers always construct $phi$ as a composition of
@@ -967,7 +880,6 @@ $
   v^((k))_(j) = 1/sqrt(n) e^((2 pi i k j)/n), #h(.4em) j=0,1,...,n-1, #h(.4em) n = 5.
 $
 
-In particular
 #let eigenvalues = ()
 #for k in (0, 1, 2, 3, 4) {
   let val = 2 - 2 * calc.cos(2 * calc.pi * k / 5)
@@ -982,6 +894,9 @@ In particular
   ($frac(1, sqrt(5)) (1, cos(4 * pi / 5), cos(2 * pi / 5), cos(4 * pi / 5), cos(4 * pi / 5))$),
   ($frac(1, sqrt(5)) (0, -sin(pi / 5), sin(2 * pi / 5), -sin(3 * pi / 5), sin(4 * pi / 5))$),
 )
+
+The eigenvalues, their multiplicities $kappa$, and the eigenvectors
+are shown in @table1.
 
 #figure(
   caption: [The Eigenvalues of The $C_(5)$ Laplacian $L$],
@@ -1000,7 +915,8 @@ In particular
       (str(i), str(eig), $vec(#x)$, str(mult))
     }
   ),
-)
+)<table1>
+
 
 Therefore, our eigenspaces, expressed as column vectors (with duplicates), are
 $
@@ -1011,7 +927,68 @@ $
   M_(5) &= mat(delim:"[", #eigenvectors.at(4))^(top).
 $
 
+Next we define $T in RR^(5 times 2)$. Let
+$T_(i,j) = cases(
+"The degree of node i" & j = 1,
+ "Where node i is next to the pendant" & j = 2
+)$
 
+$
+  T = mat(delim:"[",
+  3 , 1;
+  2 , 0;
+  2,  0;
+  2 , 0;
+  2 , 0;
+  )
+$
+
+Finally compute the terms of @schur-cor. For instance,
+$
+  M_(1) M^(top)_(1) &= 1 / 5 mat(delim:"[",
+  1 , 1 , 1 , 1 , 1;
+  1 , 1 , 1 , 1 , 1;
+  1 , 1 , 1 , 1 , 1;
+  1 , 1 , 1 , 1 , 1;
+  1 , 1 , 1 , 1 , 1;
+  ) \
+  M_(1)M^(top)_(1)T &= 1 / 5 mat(delim:"[",
+11 , 1;
+11 , 1;
+11 , 1;
+11 , 1;
+11 , 1;
+)
+$
+
+== Schur Nets Summary <subsubsec:>
+
+We showed how to construct a Schur Net neuron on the pendant graph.
+Namely we computed the eigenvalues and eigenspaces of our sub-graph
+Laplacian via the discrete Fourier basis, which yield orthonormal sub-spaces
+$M_(i)$. The eigenvalues of $L$ had multiplicities, 1, 2, 2, respectively.
+The corresponding eigenspaces were constructed using the discrete Fourier
+basis, yielding orthogonal bases $M_(i)$. Specifically $M_(1)$ corresonded
+to the eigenvalue of $0$ with the eigenvector $1/sqrt(5)mat(delim:"[",
+1 , 1 , 1 , 1 , 1;
+)^(top)$, with each $M_(i)$ being a $5 times dim(U_(i))$ matrix of our
+normalized eigenvectors.
+
+The key points to distinguish Schur Nets behavior with that of Autobahn
+is that Autobahn allowed us to specify how to construct our "equivariant"
+sub-graph neuron (see @eq:psuedo), while Schur Nets gave us no such flexibility,
+instead capturing the asymmetry through spectral analysis.
+This rigidity in Schur Nets ensures a consistent, mathematically grounded approach,
+relying on the Laplacian’s eigenspaces rather
+than flexible neuron design, providing a
+natural characterization of the graph’s structure.
+Whereas Autobahn computes $D_(5)$ directly, allowing more flexibility,
+Schur Nets uses spectral filters to process the node features,
+where each orthogonal sub-space corresponds to a part of the cycle.
+
+The main limitation, as shown by the eigenvalue multiplicity @table1, is that
+the Schur Net's representation of $D_(5)$ is not irreducible--namely subspaces
+$M_(1)$ and $M_(2)$.
 
 
 = A General Characterization Of The Expressivity of Both Autobahn And Schur Nets
@@ -1024,7 +1001,161 @@ introduced by Zhang et al. @zhangCompleteExpressivenessHierarchy2023
 and in particular for Schur Nets thanks to the recent results from
 Zhang and Maron et al @gaiHomomorphismExpressivitySpectral2024.
 
+Zhang @zhangCompleteExpressivenessHierarchy2023 introduces the concept
+of _Homomorphism Expressivity_.
 
+#definition(name: [Zhang et al @gaiHomomorphismExpressivitySpectral2024])[
+  Given two graph $F$ and $G$, a homomorphism from $F$ to $G$ is
+  a mapping f: $V_(F) -> V_(G)$ that preserves edge relations, meaning that,
+  for every ${u, v} in E_(F)$
+  $
+    {f(u), f(g)} in E_(G).
+  $
+  The set of all homomorphisms form $F$ to $G$ will be denoted as
+  $"Hom"(F, G)$
+  #remark[A question I had, which I believe is valid, is, can the set of homomorphisms
+    from $F$ to $G$ be counted. The answer turns out to be yes in some cases.]
+]<def:hom>
+
+Let $phi$ be graph neural network that outputs some graph invariant.
+Then, the _Homomorphism Expressivity_ of $phi$ can be defined.
+#definition(name: [_Homomorphism Expressivity_ Zhang et al @zhangCompleteExpressivenessHierarchy2023])[
+  Let $phi$ be a GNN (a function on graph $G$ that outputs some invariant).
+  Let $cal(X)_(G)^(phi)(G)$ be an invariant that $phi$ computes on the graph $G$.
+  _Homomorphism Expressivity_ of $phi$, denoted by $cal(F)^(phi)$, is
+  a family of connected graphs
+  #footnote[
+    A connected graph is a graph $G = (V,E)$ where there is a path $v_(i)$ to any given node $v_(j)$.
+  ]
+  satisfying the following:
+
+  - For any two graphs $G$ and $H$, $cal(X)^(phi)_(G) = cal(X)^(phi)_(H)(H)$
+    _iff_ $"Hom"(F,G) = "Hom"(F, H)$ for every $F in cal(F)^(phi)$.
+  - For any graph $F in.not cal(F)^(phi)$, there exists a pair of graph $G, H$
+    so that $cal(X)^(phi)_(G)(G)= cal(X)^(phi)_(H)(H)$ and
+    $"Hom"(F,G) != "Hom"(F, H)$.
+]<def:homoexpr>
+Let us compute the homomorphism expressivity for a few simple GNNs.
+#example(name: [Triangle-Counting GNN])[
+  Let $phi$ be a GNN that outputs the number of triangles in the graph $G$.
+  For a graph $G = (V_(G), E_(G))$,
+  $cal(X)^(phi)(G) = norm({{u,v,w} subset.eq bar.v {u, v}, {v, w}, {w, u} in E_(G)})$.
+  This GNN keeps invariance to $SS_(n)$ by aggregating node features over
+  3-hop neighborhoods, for example.
+
+  Let $G$ be a complete graph, $G = K_(4)$. This means it has $4$ triangles.
+  Let $H$ by a $C_(4)$ graph with one extra edge. Say $H = (v_(1), v_(2), v_(3), v_(4), v_(1))$ and has the edge $(v_(1), v_(3))$.
+
+  Therefore, $cal(X)^(phi)$ is the following over the various graphs
+
+  - $cal(X)^(phi)(G) = 4$ (triangles in $K_(4)$)
+  - $cal(X)^(phi)(H) = 1$ (triangle 1-2-3 in $C_(4)$)
+  - $cal(X)^(phi)(G) != cal(X)^(phi)(H)$, so we do not need to check if $"Hom"(K_(3), G) = "Hom"(K_(3), H)$, by part 1 of @def:homoexpr.
+
+  Now we consider a new pair $G'$ and $H'$
+
+  - $G'$ Two disjoint triangles $t_(1) = (v_(1), v_(2), v_(3))$ and $t_(2) = (v_(4), v_(5), v_(6))$, each triangle forming a $K_(3)$.
+  - $H'$ A cycle $C_(6)$ with two triangles. Let us say it has nodes $(v_(1), v_(2), v_(3), v_(4), v_(5), v_(6))$ and edges $(v_(1), v_(3))$ and $(v_(4), v_(6))$.
+  - $cal(X)^(phi)(G') = 2$ and $cal(X)^(phi) = 2$, so $cal(X)^(phi)(G') = cal(X)^(phi)(H')$This is a more interesting case because it forces us
+    to consider the homomorphisms from triangle to triangle on $G'$ and $H'$.
+
+  We now consider the homomorphisms $"Hom"(K_(3), G')$ and $"Hom"(K_(3), H')$
+
+  - A homomorphism from $K_(3)$ to a graph maps the triangle to another triangle
+    (see "preserves the edges" in @def:hom)
+  - $G'$ has 2 triangles, so $"Hom"(K_(3), G') = 2$ as each triangle in $G'$
+    is distinct: $(v_(1), v_(2), v_(3)) != (v_(4), v_(5), v_(6))$.
+
+  So $K_(3) in cal(F)^(phi)$ because whenever $cal(X)^(phi)(G) = cal(H)^(phi)(H)$,
+  the number of homomorphisms from $K_(3)$, that is the number of triangles
+  counts, is the same across both graphs.
+  #let A_G = ((0, 1, 1, 1), (1, 0, 1, 1), (1, 1, 0, 1), (1, 1, 1, 0))
+  #let A_H = ((0, 1, 1, 1), (1, 0, 1, 0), (1, 1, 0, 1), (1, 0, 1, 0))
+  #let A_Gprime = (
+    (0, 1, 1, 0, 0, 0),
+    (1, 0, 1, 0, 0, 0),
+    (1, 1, 0, 1, 0, 0),
+    (0, 0, 1, 0, 1, 1),
+    (0, 0, 0, 1, 0, 1),
+    (0, 0, 0, 1, 1, 0),
+  )
+  #let A_Hprime = (
+    (0, 1, 1, 0, 0, 1),
+    (1, 0, 1, 0, 0, 0),
+    (1, 1, 0, 1, 0, 0),
+    (0, 0, 1, 0, 1, 1),
+    (0, 0, 0, 1, 0, 1),
+    (1, 0, 0, 1, 1, 0),
+  )
+  #let fig_G = {
+    figure(
+      caption: [Graph $G = K_(4)$ ],
+      supplement: [Supplement],
+      draw-graph-from-adj-matrix(A_G),
+    )
+  }
+  #let fig_H = {
+    figure(
+      caption: [Graph $H$],
+      supplement: [Supplement],
+      draw-graph-from-adj-matrix(A_H),
+    )
+  }
+  #let fig_Gprime = {
+    figure(
+      caption: [Graph $G'$ With Color-Coded Triangles ],
+      supplement: [Supplement],
+      draw-graph-from-adj-matrix(
+        A_Gprime,
+        node_color_function: i => { if i < 3 { pastel-blue } else { pastel-green } },
+      ),
+    )
+  }
+  #let fig_Hprime = {
+    figure(
+      caption: [Graph $H'$],
+      supplement: [Supplement],
+      draw-graph-from-adj-matrix(A_Hprime),
+    )
+  }
+  #subpar.grid(
+    columns: (1fr, 1fr),
+    inset: (top: 1em, left: 1em, right: 1em, bottom: 1em),
+    gutter: 0pt,
+    fig_G,
+    fig_H,
+    fig_Gprime,
+    fig_Hprime,
+    caption: [The Graphs of $G,H,G'$, and $H'$],
+  )
+]
+
+So our GNN $phi$ is expressive for triangles. Let us now see
+how it does with 3-paths.
+
+#example(name: [Homomorphism Expressivity of Triangle GNN for $P_(3)$ ])[
+  We will compute the homomorphism expressivity using our triangle
+  GNN $phi$, which we defined in the last example.
+
+  - Let $F = P_(3)$, where $F$ is given by @def:hom.
+  - So $F$ is a 3-path ($v_(1), v_(2), v_(3))$.
+  - Let $G$ be a 4-cycle. So $G$ has no triangles, and $cal(X)^(phi)(G) = 0$
+  - Let H be a start graph $SS_(4)$. No triangles also, so $cal(X)^(phi)(H) = 0$
+  - $cal(X)^(phi)(G) = cal(X)^(phi)(H) = 0$
+
+  Next consider the Homomorphisms $"Hom"(P_(3), G)$ and $"Hom"(P_(3), H)$
+
+  - $"Hom"(P_(3), G)$: Map $P_(3)$ to a path of length 2 in $C_(4)$. $C_(4)$
+    has $4$ such paths, and for each path, a $P_(3)$ can be mapped in 2 directions:
+    $u -> 1, v -> 2, w ->3$ or $u -> 3, v -> 2, w -> 1$. So There are
+    $4 times 2 = 8$ homomorphisms.
+  - $"Hom"(P_(3), H)$: In $SS_(4)$ map $v$ to the center and $u,w$ to two distinct
+    leaves. So we can choose $2$ leaves out of $3$, and for each choice,
+    we can map $u,w$ in 2 ways ($u -> 1, w -> 2$ or $u -> 2, w -> 1$). Giving
+    us $3 times 2 = 6$ homomorphisms.
+  - $"Hom"(P_(3), G) = 8, "Hom"(P_(3), H) = 6$, so $"Hom"(P_(3), G) != "Hom"(P_(3), H)$.
+
+]
 
 = Acknowledgements
 This work is incomplete. I will send the completed version this weekend, but
