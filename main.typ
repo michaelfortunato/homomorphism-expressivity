@@ -991,16 +991,26 @@ In particular
     inset: 10pt,
     table.header(
       [$i$],
-      [$lambda_(i)$ of $C(5)$],
+      [Eigenvalues ($lambda_(i)$) of $C(5)$],
+      [Eigenvectors ($v_(i)$) of $C_(5)$],
       [Multiplicity, $kappa_(i)$],
-      [Eigenvectors],
     ),
     ..for (i, (eig, mult)) in unique_eigs.zip(mults).enumerate() {
       let x = eigenvectors.at(i)
-      (str(i), str(eig), str(mult), $vec(#x)$)
+      (str(i), str(eig), $vec(#x)$, str(mult))
     }
   ),
 )
+
+Therefore, our eigenspaces, expressed as column vectors (with duplicates), are
+$
+  M_(1) &= mat(delim:"[", #eigenvectors.at(0))^(top) \
+  M_(2) &= mat(delim:"[", #eigenvectors.at(1))^(top) \
+  M_(3) &= mat(delim:"[", #eigenvectors.at(2))^(top) \
+  M_(4) &= mat(delim:"[", #eigenvectors.at(3))^(top) \
+  M_(5) &= mat(delim:"[", #eigenvectors.at(4))^(top).
+$
+
 
 
 
