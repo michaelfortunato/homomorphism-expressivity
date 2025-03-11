@@ -9,6 +9,8 @@
 )
 
 
+
+
 #let affls = (
   uChicago: ("University of Chicago", "Chicago", "USA"),
 )
@@ -24,8 +26,8 @@
 
 #show: neurips2024.with(
   title: [
-    Characterizing Schur Net's Expressivity Via \ Homomorphism Expressivity \
-    #text(fill: red, "NOTICE: THIS IS THE LATE VERSION AND WAS SUBMITTED AFTER THE DEADLINE")],
+    Characterizing Schur Net's Expressivity Via \ Homomorphism Expressivity
+  ],
   authors: (authors, affls),
   keywords: ("GNNs", "Permutation-Equivairant-Neuralnetworks"),
   abstract: [
@@ -33,7 +35,7 @@
     complementary pathways toward building expressive Graph
     Neural Networks (GNNs) @thiedeAutobahnAutomorphismbasedGraph2021
     Recent work on higher-order message passing has shown
-    that subgraphs communicating with subgraphs can capture complex local structures (e.g., cycles)
+    that sub-graphs communicating with sub-graphs can capture complex local structures (e.g., cycles)
     by leveraging equivariance to the automorphism group of each local environment @thiedeAutobahnAutomorphismbasedGraph2021
     However, explicitly enumerating these automorphism groups is often infeasible.
     In response to these challenges, Schur Net provides a spectral
@@ -50,7 +52,7 @@
     using Homomorhism Expressivity @gaiHomomorphismExpressivitySpectral2024
     Specifically, we could characterize
     how Schur Net’s spectral invariants compare to, and sometimes replicate,
-    the subgraph-counting capabilities
+    the sub-graph-counting capabilities
     typically attributed to automorphism-based frameworks.
     Our analysis quantifies which families of graphs (and which substructures within them) each paradigm can homomorphism-count, and under what conditions they coincide or diverge.
     Furthermore, we extend our results to higher-order GNNs, clarifying how spectral techniques and group-theoretic constructions each handle more complex local symmetries.
@@ -64,6 +66,9 @@
   bibliography-opts: (title: "References"),
   accepted: none,
 )
+
+
+#set page(footer: text(size: 8pt, "NOTICE THIS IS THE LATE VERSION SUBMITTED AFTER DEADLINE"))
 
 #let (
   theorem,
@@ -466,7 +471,7 @@ Schur Nets to avoid having to explicitly state the template graph automorphism.
 
 While Schur Nets approach to automorphism sub-graph equivariance
 avoids the overhead imposed by the purely group theoretic approach,
-Schur Nets' does not necessary yield an irreducible representation for each
+Schur Nets does not necessary yield an irreducible representation for each
 graph @fultonRepresentationTheory2004. Therefore, Schur Net-based constructions of equivariance do not
 necessarily yield the most generalizable forms of automorphism (Autobahn-type)
 neural networks. Furthermore, the extent of the gap between Schur Nets
@@ -505,7 +510,7 @@ both approaching on example graphs. Not only does this formulation
 demonstrate this author's understanding and faculty with both frameworks
 #footnote[Facetious], but also suggests a intuitive understanding of both
 the characters of the frameworks, which we will enforce by making qualitative
-observations of both behaviors.
+observations of both behaviors before we go into the formal analysis.
 
 With these preliminaries and intuitions established, we finally get to the main
 contribution of this paper, which is a formal treatment and classification
@@ -552,7 +557,7 @@ invariant to all permutations on the input graph $cal(G)$.
   We say that $f$ _is permutation invariant to any permutation_ if,
   for any input $A^(n^(k_(1)))$,
   $
-    f(sigma dot.op A) = sigma dot.op f(A)
+    f(sigma dot.op A) = f(A)
   $
   for any $sigma in SS_(n)$.
 ]<permutation-invariant>
@@ -607,11 +612,7 @@ invariant to all permutations on the input graph $cal(G)$.
   We denote this set of permutations by $"Aut"(cal(G))$, that is
   the set of permutations that leave $cal(G)$ unchanged.
   #example(name: [4 node graphs])[
-    It was not initially clear to me why one would be interested in
-    the Automorphism group of a graph at all.
-    Furthermore, For any given graph $A in {0, 1}^(n times n)$, that
-    $SS_(n)$ was not always essentially e $"Aut"(A)$. Clearly though $"Aut"(A) != SS_(n)$.
-    We can see this by considering the graph
+    We can see that $"Aut"(A) != SS_(n)$ by considering the graph.
     #let adj-matrix-raw = (
       (0, 0, 1, 0),
       (0, 0, 1, 0),
@@ -668,7 +669,7 @@ invariant to all permutations on the input graph $cal(G)$.
     symmetries on the entire graph $A$, automorphisms,
     capture symmetry up to _sub-graphs_, so it is
     a finer filter.
-    What I mean is that, notice how the nodes in
+    In other words, observe how the nodes in
     sub-graph ${(v_(3), v_(4)), (v_(3), v_(2))}$ in $A$
     and the nodes in the corresponding sub-graph in $sigma dot.op A$,
     i.e. ${(v_(1), v_(2)), (v_(1), v_(4))}$ are not the same across the two
@@ -714,13 +715,13 @@ Schur Net.
 
 
 
-In the next section we compare and constrast how Autobahn and Schur Nets
+In the next section we compare and contrast how Autobahn and Schur Nets
 how the models compute on a pendant graph with
 a 5-cycle, in precise detail. This will give us the conceptual basis
 to give a formal analysis of the expressivity of both frameworks.
 Moreover, it will suggest that the expressivity of both GNNs frameworks
 is best measured via sub-graph counting, and as a corollary why WL tests
-are not a satistifactory measure of expressivity for these frameworks.
+are not a satisfactory measure of expressivity for these frameworks.
 This will lead us to our major contribution, which is providing a
 precise characterization of Schur Nets and Autobahn within the measurement
 framework of Homomorphism Expressivity.
@@ -893,7 +894,7 @@ permutation equivariance to $D_(5)$ of local features of the graph.
 
 In other words
 $
-  f'^(0) = (2,2,2,2,2) & "When on considered on the isoloated subgraph" \
+  f'^(0) = (2,2,2,2,2) & "When on considered on the isoloated sub-graph" \
   f'^(0) = (3,2,2,2,2) & "in actuality. I.e. with respect to the entire graph."
 $
 
@@ -937,7 +938,7 @@ via generalized convolution. Moreover, the complexity that arises due
 to overlapping sub-graphs isomorphic to the input graph introduces complexities
 and computational overhead. Autobahn addresses these issues by introducing
 narrowing and promotion,
-but it is still a source of complexity. This is discussed in @A:NarrowExplainer.
+but it is still a source of complexity.
 
 == How Schur Nets Handles The Pendant Graph <subsec:SchurNetExample>
 
@@ -1146,8 +1147,6 @@ of _Homomorphism Expressivity_.
   $
   The set of all homomorphisms form $F$ to $G$ will be denoted as
   $"Hom"(F, G)$
-  #remark[A question I had, which I believe is valid, is, can the set of homomorphisms
-    from $F$ to $G$ be counted. The answer turns out to be yes in some cases.]
 ]<def:hom>
 
 Let $phi$ be graph neural network that outputs some graph invariant.
@@ -1432,7 +1431,7 @@ $G$ and $H$ by counting triangles (i.e. homomorphism to $C_(3)$).*
 === One Layer Autobahn
 
 Autobahn can distinguish $G$ and $H$ via $F = C_(3)$ (triangles)
-in one layer. I provide a brief sketch of a proof. An alternative
+in one layer. We provide a brief sketch of a proof. An alternative
 proof, where we interpret Autobahn as a local 2 GNN, is given in the Appendix.
 
 One way to see this for Autobahn in general is simply to set the template graph
@@ -1525,9 +1524,63 @@ On the other hand, if you do not have a particular sub-structure of interest,
 or your problem domain has an infeasible number of sub-graphs that are relevant,
 it may be best to avoid using Autobahn in favor for Schur Nets. *This is especially true, if those many sub-graphs have small parallel tree depths*.
 
+= Future Work <sec:>
+
+Under homomorphism expressivity, Schur Nets has been characterized
+rather thoroughly due to the results of spectral invariant GNNs from Zhang et al @gaiHomomorphismExpressivitySpectral2024. However, more work needs to be
+done to characterize Autobahn generally, not simply on a per-graph basis.
+In particular
+
+- Verify findings of $G=K_(3,3)$, $H$, and $F = C_(3)$ for Shur Nets with empirical
+  tests
+
+- Prove formally that Autobahn can be considered a k-local GNN framework.
+
+- Interpret Autobahn as a k-local GNN framework and see if any general results
+  regarding this class and homomorphism expressivity have been established.
+  $k > 2$ remains an open question.
+
+- More generally, it is of major interest to see
+  how Autobahn differs from natural GNNs @dehaanNaturalGraphNetworks2020
+  in light of Homomorphism Expressivity. That is to say, definitions of
+  homomorphism expressivity fail to take into explicit account the
+  narrowing and promotion mechanisms introduced in Autobahn.
+  A treatment of these mechanisms is warranted.
+
+
 = Conclusion <sec:>
+
+In conclusion, this work provides a detailed theoretical analysis of the expressivity gap
+between two graph neural network paradigms—Autobahn
+and Schur Nets—within the framework of Homomorphism Expressivity.
+We demonstrated that Autobahn, by allowing the user to
+select template sub-graphs, can capture certain
+structural features (such as triangle counts) in a single layer, while Schur Nets,
+relying on fixed spectral filters, require deeper
+architectures to recognize substructures with higher parallel tree depth.
+This trade-off highlights that while Autobahn offers
+flexibility and potentially greater expressivity for domain-specific substructures,
+its increased computational complexity
+and reliance on user-specified templates can be a drawback. Conversely, Schur Nets
+provide a mathematically grounded and simpler
+spectral approach, though at the cost of reduced
+expressivity in shallow networks. These insights can inform the design of
+hybrid GNN architectures that balance
+expressivity with computational efficiency,
+and they point toward promising avenues for future research in graph representation learning.
 
 
 = Acknowledgements
-This work is incomplete. I will send the completed version this weekend, but
-I acknowledged that this submission will be the one that is graded.
+
+I would like to thank my family, who have been supportive while I was
+preparing for this report and the challenges I had to synthesize my findings.
+While I regret running out of time, this was a learning moment for me
+to learn what it takes to organize and deliver a larger research project.
+I will have to look back on how to better reduce scope and when to stop
+reading. At the same time however, I learned so much in these last 3 weeks through
+the deep reading,
+and for that I am admittedly happy and grateful.
+
+I would also like to thank Professor Kondor,
+T.A. Richard Xu, and my classmates. I so enjoyed this course, and learned
+so much. Thank you.
