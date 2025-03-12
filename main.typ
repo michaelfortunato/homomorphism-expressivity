@@ -47,9 +47,9 @@
     dubbed _Homorphism Expressivity_ @gaiHomomorphismExpressivitySpectral2024
     Crucially, Homomorphism Expressivity is the first measure of a GNN's expressivity
     that does not fall under a Weisfeiler-Lehman test @gaiHomomorphismExpressivitySpectral2024
-    In this proposal, we layout a plan for theoretically
-    measuring the expressivity of Schur Nets @zhangSchurNetsExploiting2025
-    using Homomorhism Expressivity @gaiHomomorphismExpressivitySpectral2024
+    In this project, we theoretically
+    measure the expressivity of Schur Nets @zhangSchurNetsExploiting2025
+    using Homomorhism Expressivity @gaiHomomorphismExpressivitySpectral2024.
     Specifically, we could characterize
     how Schur Net’s spectral invariants compare to, and sometimes replicate,
     the sub-graph-counting capabilities
@@ -987,6 +987,7 @@ and,
   (0, 0, -1, 2, -1),
   (-1, 0, 0, -1, 2),
 )
+
 
 Then the Laplacian of $F$ is given by $L = D_(F) - A_(F)$ so
 $
