@@ -15,6 +15,7 @@
 == Discussion: Autobahn Is a $k$-Local GNN
 
 
+
 Zhang et al @zhangCompleteExpressivenessHierarchy2023 provides a
 definition for GNNs that are based on graph coloring, which is a reformulation
 of the coloring perspective introduced in @weisfeilerREDUCTIONGRAPHCANONICAL.
