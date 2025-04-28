@@ -1,5 +1,5 @@
 #import "@preview/lemmify:0.1.8": *
-#import "@preview/cetz:0.3.3": canvas, draw, tree
+#import "@preview/cetz:0.3.4": canvas, draw, tree
 #import "@preview/subpar:0.2.1"
 
 

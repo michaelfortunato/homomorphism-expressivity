@@ -65,8 +65,6 @@
 )
 
 
-#set page(footer: text(size: 8pt, "NOTICE THIS IS THE LATE VERSION SUBMITTED AFTER DEADLINE"))
-
 #outline(depth: 2)
 
 // = Introduction <sec:1>
